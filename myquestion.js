@@ -1,0 +1,79 @@
+module.exports = function(grunt){
+    grunt.initConfig({
+       pkg:grunt.file.readJSON('package.json'), 
+       uglify:{
+         options:{
+             stripBanners:true,
+             banner:'/*! <%=pkg.name%>-<%=pkg.version%>.js <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+         },
+         build:{
+             src:'src/test.js',
+             dest:'build/<%=pkg.name%>-<%=pkg.version%>.js.min.js'
+         }
+       },
+       sass:{
+          dist:{
+            files:{
+              'src/main.css':'src/main.scss'
+            }
+          }
+       },
+       jshint:{
+           build:['src/*.js']
+       },
+       concat:{
+           options:{
+               separator:';',
+               stripBanners:true,
+               banner:'/*! <%= pkg.name %> - v<%= pkg.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
+           },
+           dist:{
+               src:['src/test.js','src/test2.js'],
+               dest:'build/built.js'
+           }
+       },
+       watch:{
+           build:{
+               files:['src/*.js'],
+               tasks:['jshint','sass','uglify','concat'],
+               options:{
+                   spawn:true
+               }
+           },
+           livereload:{
+                options:{
+                    livereload:'<%= connect.options.livereload %>'
+                },
+                files:[
+                    'src/main.html',
+                    'src/main.css',
+                    'build/built.js'
+                ]
+           }
+       },
+       connect:{
+          options:{
+                port: 9000,
+                open: true,
+                livereload:35729,
+                hostname:'localhost'
+          },
+          server:{
+            options:{
+              port:9001,
+              base:'./'
+            }
+          }
+       }
+    });
+    //加载插件
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-sass');
+    grunt.loadNpmTasks('grunt-contrib-connect');
+    //注册任务
+    grunt.registerTask('default',['jshint','sass','concat','uglify','connect','watch']);
+    
+ }
